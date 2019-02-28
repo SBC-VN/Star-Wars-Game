@@ -1,0 +1,45 @@
+@import "style-headers.css";
+
+@font-face {
+    font-family:"Star Jedi";
+    src: url("star-jedi_[allfont.net].ttf") format("truetype");
+  }
+
+html {
+    min-height: 100%;
+    min-width: 100%;
+    position: relative;
+    font-family: 'Star Jedi', Times, serif;
+    color: yellow;
+    /* background-color: rgb(219, 45, 59); */
+}
+
+body {
+    height: 100%;
+    width: 100%;
+}
+
+main {
+    position: absolute;
+    /* background-image: url("../images/tatooine.jpg");
+    background-size: cover;
+    background-repeat: no-repeat; */
+    top: 0;
+    bottom: 0;
+    right: 10%;
+    left: 10%;
+    background-image: url("../images/tatooine.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#game-header {
+    text-align: center;
+    /* letter-spacing: 0.15em;  The starwars text needs different line spacing. */
+}
+
+.jedi-image {
+    height: 150px;
+    width: 150px;
+    margin: 2px;
+}
