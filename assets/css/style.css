@@ -11,26 +11,19 @@ html {
     position: relative;
     font-family: 'Star Jedi', Times, serif;
     color: yellow;
-    /* background-color: rgb(219, 45, 59); */
+    background-image: url("../images/tatooine.jpg");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
 }
 
 body {
     height: 100%;
     width: 100%;
+
 }
 
 main {
     position: absolute;
-    /* background-image: url("../images/tatooine.jpg");
-    background-size: cover;
-    background-repeat: no-repeat; */
-    top: 0;
-    bottom: 0;
-    right: 10%;
-    left: 10%;
-    background-image: url("../images/tatooine.jpg");
-    background-size: cover;
-    background-repeat: no-repeat;
 }
 
 #game-header {
