@@ -9,8 +9,6 @@ html {
     min-height: 100%;
     min-width: 100%;
     position: relative;
-    font-family: 'Star Jedi', Times, serif;
-    color: yellow;
     background-image: url("../images/tatooine.jpg");
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -20,6 +18,26 @@ body {
     height: 100%;
     width: 100%;
 
+}
+
+#game-header {
+    font-family: 'Star Jedi', Times, serif;
+    color: yellow;
+}
+
+#attacker-header {
+    font-family: 'Star Jedi', Times, serif;
+    color: yellow;
+}
+
+#defender-header {
+    font-family: 'Star Jedi', Times, serif;
+    color: yellow;
+}
+
+#remainder-header {
+    font-family: 'Star Jedi', Times, serif;
+    color: yellow;
 }
 
 main {
@@ -35,4 +53,25 @@ main {
     height: 150px;
     width: 150px;
     margin: 2px;
+}
+
+#attacker-selected {
+    display: inline-block;
+}
+
+#attacker-choices {
+    display: inline-flex;
+}
+
+
+#defender-selected {
+    display: inline-block;
+}
+
+#defender-choices {
+    display: inline-flex;
+}
+
+#remainder-choices {
+    display: inline-flex;
 }
