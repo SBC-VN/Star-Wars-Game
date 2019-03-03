@@ -56,13 +56,16 @@ main {
 }
 
 #attacker-selected {
-    display: inline-block;
+    display: block;
 }
 
 #attacker-choices {
     display: inline-flex;
 }
 
+#attacker-card-container {
+    display: inline-block;
+}
 
 #defender-selected {
     display: inline-block;
@@ -70,6 +73,10 @@ main {
 
 #defender-choices {
     display: inline-flex;
+}
+
+#defender-card-container {
+    display: inline-block;
 }
 
 #remainder-choices {

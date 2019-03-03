@@ -23,6 +23,9 @@ for (var i=0; i<jediArray.length; i++) {
 var attackChoiceElement=$("#attacker-choices");
 var defenderChoiceElement=$("#defender-choices");
 
+//
+//  Create the boostrap card for the jedi
+//
 function createJediCard (index, name, strength, regen, imageSrc) {
     var newCard = $("<div>");
 
@@ -60,6 +63,118 @@ function createJediCard (index, name, strength, regen, imageSrc) {
     return newCard;
 }
 
+//
+//   Create 3 buttons for the attacker with attack/defend values.
+//
+function createAttackerButtons(jediId) {
+    var jediStr = jediArray[jediId].strength;
+    var attackPwr=0;
+    var defendPwr=0;
+    var cardSection = $("#attacker-card-container");
+    cardSection.css("display","inline-flex");
+    var buttonContainer = $("<div>");
+
+    buttonContainer.css("display","block");
+    cardSection.append(buttonContainer);
+    //  First is 'aggressive attack' where there is little/no defense vs counter attack
+    attackPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
+    defendPwr = Math.floor((jediStr - attackPwr)/2 * Math.random());
+    console.log(attackPwr);
+
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger\">Lunge (" + attackPwr + " / " + defendPwr +") </button>");
+    buttonDiv.css("display","block");
+    buttonDiv.css("height","30%");
+    buttonDiv.css("margin","2px");
+    buttonDiv.css("width","100%");
+    buttonContainer.append(buttonDiv);
+
+    // More balanced attack.
+
+    var baseValue = Math.floor(jediStr/2 * Math.random());
+    var adjustValue = Math.floor(jediStr/8 * Math.random());
+    attackPwr = baseValue + adjustValue;
+    if (adjustValue > baseValue) {
+        defendPwr = baseValue;
+    }
+    else {
+        defendPwr = baseValue - adjustValue;
+    }
+
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger\">Slash (" + attackPwr + " / " + defendPwr +") </button>");
+    buttonDiv.css("display","block");
+    buttonDiv.css("height","30%");
+    buttonDiv.css("margin","2px");
+    buttonDiv.css("width","100%");
+    buttonContainer.append(buttonDiv);
+
+    // More 'defensive' attack.
+    defendPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
+    attackPwr = Math.floor((jediStr - defendPwr) * Math.random());    
+ 
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger\">Jab (" + attackPwr + " / " + defendPwr +") </button>");
+    buttonDiv.css("display","block");
+    buttonDiv.css("height","30%");
+    buttonDiv.css("margin","2px");
+    buttonDiv.css("width","100%");
+    buttonContainer.append(buttonDiv);
+}
+
+//
+//   Create 3 buttons for the defender with defend/counter values.
+//
+function createDefenderButtons(jediId) {
+    console.log("Creating defender buttons");
+    var jediStr = jediArray[jediId].strength;
+    var counterPwr=0;
+    var defendPwr=0;
+    var cardSection = $("#defender-card-container");
+    cardSection.css("display","inline-flex");
+    var buttonContainer = $("<div>");
+
+    buttonContainer.css("display","block");
+    cardSection.append(buttonContainer);
+    //  First is 'aggressive attack' where there is little/no defense vs counter attack
+    defendPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
+    counterPwr = Math.floor((jediStr - defendPwr)/2 * Math.random());
+
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info\">Block (" + defendPwr + " / " + counterPwr +") </button>");
+    buttonDiv.css("display","block");
+    buttonDiv.css("height","30%");
+    buttonDiv.css("margin","2px");
+    buttonDiv.css("width","100%");
+    buttonContainer.append(buttonDiv);
+
+    // More balanced attack.
+
+    var baseValue = Math.floor(jediStr/2 * Math.random());
+    var adjustValue = Math.floor(jediStr/8 * Math.random());
+    defendPwr = baseValue + adjustValue;
+    if (adjustValue > baseValue) {
+        counterPwr = baseValue;
+    }
+    else {
+        counterPwr = baseValue - adjustValue;
+    }
+
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info\">Parry (" + defendPwr + " / " + counterPwr +") </button>");
+    buttonDiv.css("display","block");
+    buttonDiv.css("height","30%");
+    buttonDiv.css("margin","2px");
+    buttonDiv.css("width","100%");
+    buttonContainer.append(buttonDiv);
+
+    // More 'defensive' attack.
+    counterPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
+    defendPwr = Math.floor((jediStr - counterPwr) * Math.random());    
+ 
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info\">Evade (" + defendPwr + " / " + counterPwr +") </button>");
+    buttonDiv.css("display","block");
+    buttonDiv.css("height","30%");
+    buttonDiv.css("margin","2px");
+    buttonDiv.css("width","100%");
+    buttonContainer.append(buttonDiv);
+}
+
 function setAttacker(indx) {    
     $("#attacker-header").text("Attacker");
     $("#attacker-choices").css("display","none");
@@ -87,17 +202,16 @@ function setDefender(indx) {
     for (i = 0; i < jediArray.length; i++) {
 
         var card = $("#"+i);
-        console.log(i);
         if (i === indx) {
             jediArray[i].status = "defender";
             $("#defender-card").append(card);
         }
         else if (jediArray[i].status === "ready") {
-            console.log(jediArray[i].status);
             $("#remainder-choices").append(card);
         }
     }
 }
+
 
 for (i=0; i<jediArray.length; i++) {
     var jediCard1 = createJediCard(i,
@@ -127,16 +241,24 @@ $(".jedi-card").on("mouseleave", function() {
     }
 });
 
+var attackerId=0;
+var defenderId=0;
+
 $(".jedi-card").on("dblclick", function() {
     var jediIndex = parseInt(this.id);
     if (jediArray[jediIndex].status === "ready") {
         if (selectionMode === "attacker") {
             setAttacker(jediIndex);
+            attackerId = jediIndex;
             selectionMode = "defender";
         }
         else if (selectionMode === "defender") {
             setDefender(jediIndex);
+            defenderId = jediIndex;
             selectionMode = "combat";
+            createAttackerButtons(attackerId);
+            createDefenderButtons(defenderId);
+
         }
     }
 });
