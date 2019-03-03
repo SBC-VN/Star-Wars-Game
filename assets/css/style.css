@@ -79,6 +79,14 @@ main {
     display: inline-block;
 }
 
+#remainder-container {
+    display: block;
+}
+
+#remainder-choices-container {
+    display: block;
+}
+
 #remainder-choices {
     display: inline-flex;
 }

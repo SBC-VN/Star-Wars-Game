@@ -79,13 +79,16 @@ function createAttackerButtons(jediId) {
     //  First is 'aggressive attack' where there is little/no defense vs counter attack
     attackPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
     defendPwr = Math.floor((jediStr - attackPwr)/2 * Math.random());
-    console.log(attackPwr);
 
-    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger\">Lunge (" + attackPwr + " / " + defendPwr +") </button>");
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger button-attack\">Lunge (" + attackPwr + " / " + defendPwr +") </button>");
+    buttonDiv.attr("id","attack-1");
     buttonDiv.css("display","block");
     buttonDiv.css("height","30%");
     buttonDiv.css("margin","2px");
     buttonDiv.css("width","100%");
+    buttonDiv.attr("id","attack-1");
+    buttonDiv.val(attackPwr + ":" + defendPwr);
+    //buttonDiv.on("click", function() {attackClick(attackPwr + ":" + defendPwr);});
     buttonContainer.append(buttonDiv);
 
     // More balanced attack.
@@ -100,23 +103,33 @@ function createAttackerButtons(jediId) {
         defendPwr = baseValue - adjustValue;
     }
 
-    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger\">Slash (" + attackPwr + " / " + defendPwr +") </button>");
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger button-attack\">Slash (" + attackPwr + " / " + defendPwr +") </button>");
     buttonDiv.css("display","block");
     buttonDiv.css("height","30%");
     buttonDiv.css("margin","2px");
     buttonDiv.css("width","100%");
+    buttonDiv.attr("id","attack-2");
+    buttonDiv.val(attackPwr + ":" + defendPwr);
+    //buttonDiv.on("click", function() {attackClick(attackPwr + ":" + defendPwr);});
     buttonContainer.append(buttonDiv);
 
     // More 'defensive' attack.
     defendPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
     attackPwr = Math.floor((jediStr - defendPwr) * Math.random());    
  
-    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger\">Jab (" + attackPwr + " / " + defendPwr +") </button>");
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-danger button-attack\">Jab (" + attackPwr + " / " + defendPwr +") </button>");
     buttonDiv.css("display","block");
     buttonDiv.css("height","30%");
     buttonDiv.css("margin","2px");
     buttonDiv.css("width","100%");
+    buttonDiv.attr("id","attack-3");
+    buttonDiv.val(attackPwr + ":" + defendPwr);
+    //buttonDiv.on("click", function() {attackClick(attackPwr + ":" + defendPwr);});
     buttonContainer.append(buttonDiv);
+
+    $("#button-attack").on("click",function() {
+        console.log(this);
+    });
 }
 
 //
@@ -137,11 +150,13 @@ function createDefenderButtons(jediId) {
     defendPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
     counterPwr = Math.floor((jediStr - defendPwr)/2 * Math.random());
 
-    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info\">Block (" + defendPwr + " / " + counterPwr +") </button>");
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info button-defend\">Block (" + defendPwr + " / " + counterPwr +") </button>");
     buttonDiv.css("display","block");
     buttonDiv.css("height","30%");
     buttonDiv.css("margin","2px");
     buttonDiv.css("width","100%");
+    buttonDiv.val(defendPwr + ":" + counterPwr);
+    buttonDiv.attr("id","defend-1");
     buttonContainer.append(buttonDiv);
 
     // More balanced attack.
@@ -156,22 +171,26 @@ function createDefenderButtons(jediId) {
         counterPwr = baseValue - adjustValue;
     }
 
-    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info\">Parry (" + defendPwr + " / " + counterPwr +") </button>");
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info button-defend\">Parry (" + defendPwr + " / " + counterPwr +") </button>");
     buttonDiv.css("display","block");
     buttonDiv.css("height","30%");
     buttonDiv.css("margin","2px");
     buttonDiv.css("width","100%");
+    buttonDiv.val(defendPwr + ":" + counterPwr);
+    buttonDiv.attr("id","defend-2");
     buttonContainer.append(buttonDiv);
 
     // More 'defensive' attack.
     counterPwr = Math.floor((jediStr/2 * Math.random()) + jediStr/2);
     defendPwr = Math.floor((jediStr - counterPwr) * Math.random());    
  
-    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info\">Evade (" + defendPwr + " / " + counterPwr +") </button>");
+    var buttonDiv = $("<button type=\"button\" class=\"btn btn-info button-defend\">Evade (" + defendPwr + " / " + counterPwr +") </button>");
     buttonDiv.css("display","block");
     buttonDiv.css("height","30%");
     buttonDiv.css("margin","2px");
     buttonDiv.css("width","100%");
+    buttonDiv.val(defendPwr + ":" + counterPwr);
+    buttonDiv.attr("id","defend-3");
     buttonContainer.append(buttonDiv);
 }
 
@@ -197,7 +216,7 @@ function setAttacker(indx) {
 function setDefender(indx) {    
     $("#defender-header").text("Defender");
     $("#defender-choices").css("display","none");
-    $("#remainder-container").css("display","inline-flex");
+    $("#remainder-container").css("display","block");
 
     for (i = 0; i < jediArray.length; i++) {
 
@@ -220,6 +239,17 @@ for (i=0; i<jediArray.length; i++) {
                                    jediArray[i].regen,
                                    jediArray[i].picture);
     $("#attacker-choices").append(jediCard1);
+}
+
+function attackClick() {
+    var defendChoice = Math.floor(3 * Math.random())+1;   // Number 1-3
+    var defendButton = $("#defend-" + defendChoice);
+    var defendValue = defendButton.val();
+    console.log("Defend");
+    console.log(defendValue);
+
+    console.log("Attack");
+    //console.log(attackValue);
 }
 
 // Hide the defender section until an attacker is selected.
