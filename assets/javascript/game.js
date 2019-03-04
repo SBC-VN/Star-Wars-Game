@@ -32,6 +32,11 @@ function createJediCard (index, name, strength, regen, hitpoints, imageSrc) {
 
     newCard.addClass("card mb-3 jedi-card");
     newCard.attr("id", index);
+    newCard.attr("jedi-name", name);
+    newCard.attr("jedi-strength", strength);
+    newCard.attr("jedi-base-strength", strength);
+    newCard.attr("jedi-regen", regen);
+    newCard.attr("jedi-hp", hitpoints);
     newCard.css("max-width","350px");
     newCard.css("background-color","grey");
 
@@ -58,9 +63,9 @@ function createJediCard (index, name, strength, regen, hitpoints, imageSrc) {
     rowColumn2.append(column2Body);
     column2Body.addClass("card-body");
     column2Body.append("<h5 class=\"card-title\">"+ name +"</h5>");
-    column2Body.append("<p class=\"card-text\">Strength: " + strength +"</p>");
-    column2Body.append("<p class=\"card-text\">Regen: " + regen +"</p>");
-    column2Body.append("<p class=\"card-text\">HP: " + hitpoints +"</p>");
+    column2Body.append("<p class=\"card-text strength\">Strength: " + strength +"</p>");
+    column2Body.append("<p class=\"card-text regen\">Regen: " + regen +"</p>");
+    column2Body.append("<p class=\"card-text hp\">HP: " + hitpoints +"</p>");
 
     return newCard;
 }
@@ -131,17 +136,12 @@ function createAttackerButtons(jediId) {
     buttonDiv.attr("attack-name","Jab");
     buttonDiv.on("click",attackClick);
     buttonContainer.append(buttonDiv);
-
-    // $("#button-attack").on("click",function() {
-    //     console.log(this);
-    // });
 }
 
 //
 //   Create 3 buttons for the defender with defend/counter values.
 //
 function createDefenderButtons(jediId) {
-    console.log("Creating defender buttons");
     var jediStr = jediArray[jediId].strength;
     var counterPwr=0;
     var defendPwr=0;
@@ -274,11 +274,25 @@ function attackClick(evt) {
 
     var attackPower = parseInt(attackValueArray[0]);
     var defensePower = parseInt(defendValueArray[0]);
-    var delta = attackPower - defensePower;   
+    var delta = attackPower - defensePower;
+
+    var defendCardInfoPtr = $("#defender-card").children();
+    var defenderName = defendCardInfoPtr[0].getAttribute("jedi-name");
+    var defenderStr = parseInt(defendCardInfoPtr[0].getAttribute("jedi-strength"));
+    var defenderMaxStr = parseInt(defendCardInfoPtr[0].getAttribute("jedi-base-strength"));
+    var defenderRegen = parseInt(defendCardInfoPtr[0].getAttribute("jedi-regen"));
+    var defenderHp = parseInt(defendCardInfoPtr[0].getAttribute("jedi-hp"));
+
+    var attackCardInfoPtr = $("#attacker-card").children();
+    var attackerName = attackCardInfoPtr[0].getAttribute("jedi-name");
+    var attackerStr = parseInt(attackCardInfoPtr[0].getAttribute("jedi-strength"));
+    var attackerMaxStr = parseInt(attackCardInfoPtr[0].getAttribute("jedi-base-strength"));
+    var attackerRegen = parseInt(attackCardInfoPtr[0].getAttribute("jedi-regen"));
+    var attackerHp = parseInt(attackCardInfoPtr[0].getAttribute("jedi-hp"));
 
     if (delta > 0) {
         resultsDiv.append(" attack wins, defender loses " + delta + " hit points.");
-        console.log($("#defender-card"));
+        defenderHp -= delta;
     }
     else if (delta <= 0) {
         attackPower = parseInt(defendValueArray[1]);
@@ -286,6 +300,7 @@ function attackClick(evt) {
         counterDelta = attackPower - defensePower;
         if (counterDelta > 0) {
             resultsDiv.append(" attack countered, attacker loses " + counterDelta + " hit points.");
+            attackerHp -= counterDelta;
         }
         else {
             resultsDiv.append(" attack countered, no loss of hitpoints.");
@@ -293,6 +308,36 @@ function attackClick(evt) {
     }
 
     resultsDiv.append("<br>");
+
+    if (defenderHp <= 0) {
+        alert(attackerName + " wins.");
+        return;
+    }
+    else if (attackerHp <= 0) {
+        alert(defenderName + " wins.");
+        return;
+    }
+
+    attackerStr += attackerRegen;
+    if (attackerStr > attackerMaxStr) {
+        attackerStr = attackerMaxStr;
+    }
+
+    defenderStr += defenderRegen;
+    if (defenderStr > defenderMaxStr) {
+        defenderStr = defenderMaxStr;
+    }
+
+    var elems = attackCardInfoPtr[0].getElementsByClassName("card-text");
+    console.log(elems[0]);
+    console.log(elems[0].innerText);
+    elems[0].textContent = "Strength: " + attackerStr;
+    elems[0] = $("<p class=\"card-text strength\">Strength: " + attackerStr +"</p>");
+    // elems[2].text("HP: " + attackerHp);
+
+    // elems = defendCardInfoPtr[0].getElementsByClassName("card-text");
+    // elems[0].text("Strength: " + defenderStr);
+    // elems[2].text("HP: " + defenderHp);
 }
 
 $(document).ready(function() {
@@ -346,7 +391,6 @@ $(document).ready(function() {
                 selectionMode = "combat";
                 createAttackerButtons(attackerId);
                 createDefenderButtons(defenderId);
-                console.log("Display results container");
                 $("#results-container").css("display","inline-block");             
             }
         }
