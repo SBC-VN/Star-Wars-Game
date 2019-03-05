@@ -54,7 +54,8 @@ main {
 }
 
 #results-container {
-    display: inline-block;
+    /* display: inline-block; */
+    display: none;
     font-family: 'Star Jedi', Times, serif;
     color: yellow;
     width: 500px;
@@ -63,9 +64,12 @@ main {
 }
 
 .jedi-image {
-    height: 150px;
-    width: 150px;
-    margin: 2px;
+    height: 220px;
+ /* width: 160px; */
+}
+
+#attacker-container {
+    display: block;
 }
 
 #attacker-selected {
@@ -80,9 +84,8 @@ main {
     display: inline-block;
 }
 
-
 #defender-selected {
-    display: inline-block;
+    display: none;    
 }
 
 #defender-choices {
@@ -94,7 +97,7 @@ main {
 }
 
 #remainder-container {
-    display: block;
+    display: none;
 }
 
 #remainder-choices-container {
