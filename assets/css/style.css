@@ -57,6 +57,7 @@ main {
     width: 500px;
     position: absolute;
     margin-left: 3em;
+    overflow: scroll;
 }
 
 .jedi-image {
@@ -89,7 +90,7 @@ main {
 }
 
 #defender-card-container {
-    display: inline-block;
+    display: inline-flex;
 }
 
 #remainder-container {

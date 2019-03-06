@@ -13,6 +13,31 @@ function cardMouseLeave(evt) {
     this.style.backgroundColor = "grey";
 }
 
+function attackButtonClick(evt) {
+    var attackIndex = parseInt(this.value);
+    var defendIndex = Math.floor(3 * Math.random());
+
+    var attackValue = attackingJedi.attacks[attackIndex][0] - defendingJedi.defends[defendIndex][0];
+    if (attackValue > 0) {
+        $("#results-text").append("Attacker hits defender for " + attackValue + " hit points.");
+        defendingJedi.decreaseHitPoints(attackValue);
+    }
+    else if (attackValue < 0) {
+        defendValue = defendingJedi.defends[defendIndex][1] - attackingJedi.attacks[attackIndex][1];
+        if (defendValue > 0) {
+            $("#results-text").append("Defender counters attacker for " + defendValue + " hit points.");
+            attackingJedi.decreaseHitPoints(defendValue);
+        }
+        else {
+            $("#results-text").append("Unsucessful attack and counter attack, no damage.");
+        }
+    }
+    else {
+        $("#results-text").append("Even match, no damage.");
+    }
+    $("#results-text").append($("<br>"));
+}
+
 function setAttackButtons(jediRec) {
     $("#attacker-buttons").empty();
 
@@ -22,22 +47,28 @@ function setAttackButtons(jediRec) {
     jediRec.attacks[0][1] =  Math.floor(attackValue * 0.2);
     var button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-1\">");
     button.text("Lunge (" + jediRec.attacks[0][0] + "/" + jediRec.attacks[0][1]+")");
+    button.val(0);
+    button.on("click",attackButtonClick);
     $("#attacker-buttons").append(button);
 
     // Balanced attack
-    attackValue = Math.floor(this.strength * 0.4 + ((this.strength * 0.1) * Math.random()));
+    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
     jediRec.attacks[1][0] =  Math.floor(attackValue * 0.6);
     jediRec.attacks[1][1] =  Math.floor(attackValue * 0.4);
     button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-2\">");
     button.text("Slash (" + jediRec.attacks[1][0] + "/" + jediRec.attacks[1][1]+")");
+    button.val(1);
+    button.on("click",attackButtonClick);
     $("#attacker-buttons").append(button);
 
     // Light attack
-    attackValue = Math.floor(this.strength * 0.4 + ((this.strength * 0.1) * Math.random()));
+    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
     jediRec.attacks[2][0] =  Math.floor(attackValue * 0.4);
     jediRec.attacks[2][1] =  Math.floor(attackValue * 0.6);
     button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-3\">");
     button.text("Jab (" + jediRec.attacks[2][0] + "/" + jediRec.attacks[2][1]+")");
+    button.val(2);
+    button.on("click",attackButtonClick);
     $("#attacker-buttons").append(button);
     $("#attacker-buttons").css("display","inline-grid");
     $("#attacker-buttons").css("margin-bottom","1rem");
@@ -50,26 +81,28 @@ function setDefendButtons(jediRec) {
     var attackValue = Math.floor(jediRec.strength * 0.6 + ((jediRec.strength * 0.2) * Math.random()));
     jediRec.defends[0][0] =  Math.floor(attackValue * 0.8);
     jediRec.defends[0][1] =  Math.floor(attackValue * 0.2);
-    var button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-1\">");
+    var button = $("<button type=\"button\" class=\"btn btn-info button-defend\"  id=\"btn-defend-1\">");
     button.text("Block (?/?)");
     $("#defender-buttons").append(button);
 
     // Balanced defense
-    attackValue = Math.floor(this.strength * 0.4 + ((this.strength * 0.1) * Math.random()));
+    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
     jediRec.defends[1][0] =  Math.floor(attackValue * 0.6);
     jediRec.defends[1][1] =  Math.floor(attackValue * 0.4);
-    button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-2\">");
+    button = $("<button type=\"button\" class=\"btn btn-info button-defend\"  id=\"btn-defend-2\">");
     button.text("Parry (?/?)");
     $("#defender-buttons").append(button);
 
     // Light defense
-    attackValue = Math.floor(this.strength * 0.4 + ((this.strength * 0.1) * Math.random()));
+    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
     jediRec.defends[2][0] =  Math.floor(attackValue * 0.4);
     jediRec.defends[2][1] =  Math.floor(attackValue * 0.6);
-    button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-3\">");
+    button = $("<button type=\"button\" class=\"btn btn-info button-defend\"  id=\"btn-defend-3\">");
     button.text("Evade (?/?))");
     $("#defender-buttons").append(button);
+
     $("#defender-buttons").css("display","inline-grid");
+    $("#defender-buttons").css("margin-bottom","1rem");
 }
 
 function populateAttackerSelection() {
@@ -85,7 +118,6 @@ function populateAttackerSelection() {
 function populateDefenderSelection() {
     $("#defender-container").css("display","block");
     $("#defender-choices").css("display","inline-flex");
-    $("#defender-selected").css("display","block");
  
     for (var i=0; i<jediArray.length; i++) {
         if (jediArray[i].status === "ready") {
@@ -114,8 +146,6 @@ function jediCardDoubleClick(evt) {
             $("#attacker-card").empty();
             $("#attacker-card").append(jediInfo.card);
             $("#attacker-header").text("Attacker:");
-            //$("#attacker-card-container").css("display","contents");
-            //$("#attacker-choices").empty();
             jediInfo.status = "attacker";
             attackingJedi = jediInfo;
             if (defendingJedi == null) {
@@ -126,13 +156,16 @@ function jediCardDoubleClick(evt) {
                 populateRemainingSelection();
                 setAttackButtons(attackingJedi);
                 setDefendButtons(defendingJedi);
+                $("#results-container").css("display","inline-block");
+                $("#results-text").empty();
+
                 selectionMode = "none";
             }
         }
         else if (selectionMode === "defender") {
             $("#defender-card").empty();
-            $("#defender-card").append(this.card);
-            $("#defender-header").text("Attacker:");
+            $("#defender-card").append(jediInfo.card);
+            $("#defender-header").text("Defender:");
             $("#defender-selected").css("display","contents");
             jediInfo.status = "defender";
             defendingJedi = jediInfo;
@@ -144,6 +177,9 @@ function jediCardDoubleClick(evt) {
                 populateRemainingSelection();
                 setAttackButtons(attackingJedi);
                 setDefendButtons(defendingJedi);
+                $("#results-container").css("display","inline-block");
+                $("#results-text").empty();
+
                 selectionMode = "none";
             }
         }
@@ -161,32 +197,34 @@ function createJediCard(jediId, jediName, jediImage,strength,regen,hp) {
     rowDiv.append(col2Div);
     col2Div.css("padding-left","2px");
     col2Div.append("<h5 class=\"card-title\"> " + jediName + "</h5>");
-    col2Div.append("<p class=\"card-text\">Strength <span class=\"strength\">"+ strength + "</span></p>");
-    col2Div.append("<p class=\"card-text\">Regen <span class=\"regen\">"+ regen + "</span></p>");
-    col2Div.append("<p class=\"card-text\">Hp <span class=\"hp\">"+hp+"</span></p>");
+    col2Div.append("<p class=\"card-text\">Strength <span id=\"strength"+ jediId + "\">"+ strength + "</span></p>");
+    col2Div.append("<p class=\"card-text\">Regen <span id=\"regen"+ jediId + "\">"+ regen + "</span></p>");
+    col2Div.append("<p class=\"card-text\">Hp <span id=\"hp"+ jediId + "\">"+hp+"</span></p>");
     newCard.css("background-color","grey");
     newCard.on("mouseenter",cardMouseEnter);
-    newCard.on("mouseleave",cardMouseLeave)
-    newCard.on("dblclick",jediCardDoubleClick)
+    newCard.on("mouseleave",cardMouseLeave);
+    newCard.on("dblclick",jediCardDoubleClick);
     return newCard;
 }
 
 
 class Jedi {
     constructor (jediId, jediName, JediPicture) {
+        this.jediId = jediId;
         this.name = jediName;
         this.picture = JediPicture;
 
         // Calculate somewhat random str, hp, and regen stats - but keep total in a tight range
         // so that no jedi is OP or UP.
-        do
-        {
+        do {
             this.strength = Math.floor(Math.random() * 100) + 50;
             this.hp = Math.floor(Math.random() * 100) + 225;
             this.regen = Math.floor(Math.random() * 25) + 25;
         }  while (this.strength + this.hp + this.regen < 400 &&
                   this.strength + this.hp + this.regen > 475);
 
+        this.baseStrength = this.strength;
+        this.baseHp = this.hp;
         // Calculate the jedi's attack modes.
         
         this.attacks = [];
@@ -207,6 +245,34 @@ class Jedi {
                                     this.hp);
         this.status = "ready";
     }
+
+    decreaseHitPoints(points) {
+        this.hp -= points;
+        if (this.hp <= 0) {
+            var loseDiv = $("<h3>");
+            loseDiv.text(this.name + " is defeated.");
+            if (this.status === "defender") {
+                defendingJedi = null;
+                selectionMode = "defender";
+                this.status = "dead";
+                $("#defender-card").empty();
+                populateDefenderSelection();                
+                $("#remainder-choices").empty();
+            }
+            else {
+                attackingJedi = null;
+                selectionMode = "attacker";
+                this.status = "dead";
+                $("#attacker-card").empty();
+                populateAttackerSelection();                
+                $("#remainder-choices").empty();
+            }                   
+        }
+        else {
+            $("#strength" + this.jediId).text(this.hp);
+        }
+    }
+
 }
 
 $(document).ready(function() {
