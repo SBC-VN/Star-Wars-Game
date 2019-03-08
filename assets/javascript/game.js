@@ -15,138 +15,31 @@ function cardMouseLeave(evt) {
 }
 
 //
-//  Click handler when an attack button is clicked.    This handler compares the
-//  attack selected by the player against a random defense selected by the computer to determine
-//  who takes damage, and how much.
+//  Click handler when an attack button is clicked.
 //
 function attackButtonClick(evt) {
-    // If we are selecting either an attacker or defender - don't process any attack button clicks.
-    if (selectionMode != "none") {
+    // Must have an attacker and defender.
+    if (attackingJedi == null || defendIndex == null) {
         return;
     }
 
-    var attackIndex = parseInt(this.value);
-    var defendIndex = Math.floor(3 * Math.random());
-    var defendStr = defendingJedi.defends[defendIndex][0];
-    if (defendStr > defendingJedi.strength) {
-        defendStr = 0;
-        for (var i=0; i < defendingJedi.defends.length; i++) {
-            if (defendingJedi.defends[defendIndex][0] <= defendingJedi.strength) {
-                defendStr = defendingJedi.defends[defendIndex][0];
-                break;
-            }
-        }
+    $("#results-text").append(attackingJedi.name + " attacks " + defendingJedi.name + " for " + 
+                              attackingJedi.attack + " hp.");
+
+    defendingJedi.decreaseHitPoints(attackingJedi.attack);
+    if (defendingJedi != null) {
+        // The defending jedi must live through the attack to give a counter...
+        attackingJedi.decreaseHitPoints(defendingJedi.counterAttack);
+        $("#results-text").append(defendingJedi.name + " counters " + attackingJedi.name + " for " + 
+                                  defendingJedi.counterAttack + " hp.");
     }
 
-    // Both attacker and defender's strength is decreased by the primary mode (first value) of
-    //  the chosen attack/defense.
-    attackingJedi.decreaseStrength(attackingJedi.attacks[attackIndex][0]);
-    defendingJedi.decreaseStrength(defendStr);
-
-    var attackValue = attackingJedi.attacks[attackIndex][0] - defendStr;
-    if (attackValue > 0) {
-        $("#results-text").append("Attacker hits defender for " + attackValue + " hit points.");
-        defendingJedi.decreaseHitPoints(attackValue);
-        // A Jedi regains some strength (for the turn after the next) if they don't take damage this turn.
-        attackingJedi.doRegen();
+    // It's possible that the game ended and the attacking jedi is null...
+    if (attackingJedi != null) {        
+        attackingJedi.increaseAttackStr();        
     }
-    else if (attackValue < 0) {
-        defendValue = defendingJedi.defends[defendIndex][1] - attackingJedi.attacks[attackIndex][1];
-        if (defendValue > 0) {
-            $("#results-text").append("Defender counters attacker for " + defendValue + " hit points.");
-            attackingJedi.decreaseHitPoints(defendValue);
-            defendingJedi.doRegen();
-        }
-        else {
-            $("#results-text").append("Unsucessful attack and counter attack, no damage.");
-            // A Jedi regains some strength (for the turn after the next) if they don't take damage this turn.
-            attackingJedi.doRegen();
-            defendingJedi.doRegen();
-        }
-    }
-    else {
-        $("#results-text").append("Even match, no damage.");
-        attackingJedi.doRegen();
-        defendingJedi.doRegen();
-    }
+    
     $("#results-text").append($("<br>"));    
-}
-
-//
-//  This function creates the attack buttons.   It is designed so that it can be called 
-//  more than once and create different attack values each time.   This can be used to 
-//  randomize things even more...
-//
-function setAttackButtons(jediRec) {
-    $("#attacker-buttons").empty();
-
-    // Aggressive attack
-    var attackValue = Math.floor(jediRec.strength * 0.6 + ((jediRec.strength * 0.2) * Math.random()));
-    jediRec.attacks[0][0] =  Math.floor(attackValue * 0.8);
-    jediRec.attacks[0][1] =  Math.floor(attackValue * 0.2);
-    var button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-1\">");
-    button.text("Lunge (" + jediRec.attacks[0][0] + "/" + jediRec.attacks[0][1]+")");
-    button.val(0);
-    button.on("click",attackButtonClick);
-    $("#attacker-buttons").append(button);
-
-    // Balanced attack
-    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
-    jediRec.attacks[1][0] =  Math.floor(attackValue * 0.6);
-    jediRec.attacks[1][1] =  Math.floor(attackValue * 0.4);
-    button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-2\">");
-    button.text("Slash (" + jediRec.attacks[1][0] + "/" + jediRec.attacks[1][1]+")");
-    button.val(1);
-    button.on("click",attackButtonClick);
-    $("#attacker-buttons").append(button);
-
-    // Light attack
-    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
-    jediRec.attacks[2][0] =  Math.floor(attackValue * 0.4);
-    jediRec.attacks[2][1] =  Math.floor(attackValue * 0.6);
-    button = $("<button type=\"button\" class=\"btn btn-danger button-attack\"  id=\"btn-attack-3\">");
-    button.text("Jab (" + jediRec.attacks[2][0] + "/" + jediRec.attacks[2][1]+")");
-    button.val(2);
-    button.on("click",attackButtonClick);
-    $("#attacker-buttons").append(button);
-    $("#attacker-buttons").css("display","inline-grid");
-    $("#attacker-buttons").css("margin-bottom","1rem");
-}
-
-//
-//   Similar function to the attack buttons - however no values are displayed on the buttons so that
-//   it's a bit more mysterious to the player.  (And they can't choose attacks based on the possible
-//   defense values.)
-//
-function setDefendButtons(jediRec) {
-    $("#defender-buttons").empty();
-
-    // Aggressive defense
-    var attackValue = Math.floor(jediRec.strength * 0.6 + ((jediRec.strength * 0.2) * Math.random()));
-    jediRec.defends[0][0] =  Math.floor(attackValue * 0.8);
-    jediRec.defends[0][1] =  Math.floor(attackValue * 0.2);
-    var button = $("<button type=\"button\" class=\"btn btn-info button-defend\"  id=\"btn-defend-1\">");
-    button.text("Block (?/?)");
-    $("#defender-buttons").append(button);
-
-    // Balanced defense
-    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
-    jediRec.defends[1][0] =  Math.floor(attackValue * 0.6);
-    jediRec.defends[1][1] =  Math.floor(attackValue * 0.4);
-    button = $("<button type=\"button\" class=\"btn btn-info button-defend\"  id=\"btn-defend-2\">");
-    button.text("Parry (?/?)");
-    $("#defender-buttons").append(button);
-
-    // Light defense
-    attackValue = Math.floor(jediRec.strength * 0.4 + ((jediRec.strength * 0.1) * Math.random()));
-    jediRec.defends[2][0] =  Math.floor(attackValue * 0.4);
-    jediRec.defends[2][1] =  Math.floor(attackValue * 0.6);
-    button = $("<button type=\"button\" class=\"btn btn-info button-defend\"  id=\"btn-defend-3\">");
-    button.text("Evade (?/?))");
-    $("#defender-buttons").append(button);
-
-    $("#defender-buttons").css("display","inline-grid");
-    $("#defender-buttons").css("margin-bottom","1rem");
 }
 
 
@@ -210,12 +103,13 @@ function setDefenderSelectionMode() {
 //  Puts remaining 'live' jedi in the standy-by area, and sets selection mode to 'none'.
 //
 function populateRemainingSelection() {
-    $("#remainder-container").empty();
+    $("#remainder-choices").empty();
     $("#remainder-container").css("display","block");
     $("#remainder-choices").css("display","inline-flex");
  
     for (var i=0; i<jediArray.length; i++) {
         if (jediArray[i].status === "ready") {
+            console.log("Append jedi card.");
              $("#remainder-choices").append(jediArray[i].card);
         }
     }
@@ -231,11 +125,13 @@ function populateRemainingSelection() {
 //
 function jediCardDoubleClick(evt) {
   
+    // The event is on the jedi card - use the card's id to access the jedi information in the
+    // array.
     var jediInfo = jediArray[parseInt(this.getAttribute("id"))];
 
     // Only jedis in a ready state can respond to the double click (and get selected).
-    if (jediInfo.status === "ready") {
-       
+    if (jediInfo.status === "ready") { 
+
         if (selectionMode === "attacker") {
             //  Mode indicates that we set this jedi as the attacker.
             $("#attacker-card").empty();
@@ -243,23 +139,8 @@ function jediCardDoubleClick(evt) {
             $("#attacker-header").text("Attacker:");
             jediInfo.status = "attacker";
             attackingJedi = jediInfo;
-
-            //  Now determine the 'next' selection mode.   If there is no defending jedi yet,
-            //  then we move to 'select defender' mode.  If there is, then we were just replacing
-            //  a fallen attacker - the rest of the jedi go to standby mode.
-            if (defendingJedi == null) {
-                setDefenderSelectionMode();
-            }
-            else {
-                // Since we now have an attacker and defender, activate the attack/defend phase of game
-                populateRemainingSelection();
-                setAttackButtons(attackingJedi);
-                setDefendButtons(defendingJedi);
-                $("#results-container").css("display","inline-block");
-                $("#results-text").empty();
-
-                selectionMode = "none";
-            }
+            $("#attack-button").css("display","block");
+            setDefenderSelectionMode();            
         }
         else if (selectionMode === "defender") {
             // Selection mode sets this jedi as defender.
@@ -270,21 +151,11 @@ function jediCardDoubleClick(evt) {
             jediInfo.status = "defender";
             defendingJedi = jediInfo;
 
-            // Next selection mode is set to attacker if there is no attacker (selected attacker == null)
-            // or all remaining jedi are moved 'to the bench'.
-            if (attackingJedi == null) {
-                setAttackerSelectionMode();
-            }
-            else {
-                // Since we now have an attacker and defender, activate the attack/defend phase of game
-                populateRemainingSelection();
-                setAttackButtons(attackingJedi);
-                setDefendButtons(defendingJedi);
-                $("#results-container").css("display","inline-block");
-                $("#results-text").empty();
-
-                selectionMode = "none";
-            }
+            // Move the other jedis to the stand by box.
+            populateRemainingSelection();
+            // Bring the results container back up.
+            $("#results-container").css("display","inline-block");
+            selectionMode = "none";
         }
     }
 }
@@ -292,7 +163,7 @@ function jediCardDoubleClick(evt) {
 //
 //  This function dynamically creates a bootstrap 'card' for the given jedi (information);
 //
-function createJediCard(jediId, jediName, jediImage,strength,regen,hp) {
+function createJediCard(jediId, jediName, jediImage, attack, counter, hp) {
     var newCard = $("<div class=\"card mb-3 jedi-card\" id=\"" + jediId + "\" style=\"max-width: 300px;\">");
     var rowDiv = $("<div class=\"row no-gutters\">");
     newCard.append(rowDiv);
@@ -303,8 +174,8 @@ function createJediCard(jediId, jediName, jediImage,strength,regen,hp) {
     rowDiv.append(col2Div);
     col2Div.css("padding-left","2px");
     col2Div.append("<h5 class=\"card-title\"> " + jediName + "</h5>");
-    col2Div.append("<p class=\"card-text\">Strength <span id=\"strength"+ jediId + "\">"+ strength + "</span></p>");
-    col2Div.append("<p class=\"card-text\">Regen <span id=\"regen"+ jediId + "\">"+ regen + "</span></p>");
+    col2Div.append("<p class=\"card-text\">Attack <span id=\"attack"+ jediId + "\">"+ attack + "</span></p>");
+    col2Div.append("<p class=\"card-text\">Counter <span id=\"counter"+ jediId + "\">"+ counter + "</span></p>");
     col2Div.append("<p class=\"card-text\">Hp <span id=\"hp"+ jediId + "\">"+hp+"</span></p>");
     newCard.css("background-color","grey");
     return newCard;
@@ -320,42 +191,30 @@ class Jedi {
         this.name = jediName;
         this.picture = JediPicture;
 
-        // Calculate somewhat random str, hp, and regen stats - but keep total in a tight range
-        // so that no jedi is OP or UP.
-        do {
-            this.strength = Math.floor(Math.random() * 100) + 50;
-            this.hp = Math.floor(Math.random() * 50) + 100;
-            this.regen = Math.floor(Math.random() * 25) + 25;
-        }  while (this.strength + this.hp + this.regen < 200 &&
-                  this.strength + this.hp + this.regen > 300);
+        // Simple random stats, not a lot of 'balance' type gymnastics.
+        // However, it seems good that the 'ideal' game allows a jedi to withstand
+        // three attacks.
+        //
+        this.baseAttack = Math.floor(Math.random() * 5) + 5;  // Between 5-10 points.
+        this.hp = Math.floor(Math.random() * 15) + 15;        // Between 15-30 points.  
+        this.counterAttack =  Math.floor(Math.random() * 5) + 5;  // Same as attack.
 
-        this.baseStrength = this.strength;
-        this.baseHp = this.hp;
-        // Calculate the jedi's attack modes.
-        
-        this.attacks = [];
-        this.attacks[0] = [];
-        this.attacks[1] = [];
-        this.attacks[2] = [];
-
-        this.defends = [];
-        this.defends[0] = [];
-        this.defends[1] = [];
-        this.defends[2] = [];
+        this.attack = this.baseAttack;  // Start off at base attack.
 
         // Dynamically create a bootstrap card for this jedi and store it (we'll use it a lot)
         this.card = createJediCard( jediId,
                                     this.name,
                                     this.picture,
-                                    this.strength,
-                                    this.regen,
+                                    this.attack,
+                                    this.counterAttack,
                                     this.hp);
         this.status = "ready";
     }
 
     //
     //   Method that decreases the jedi's hit points by the given amount.   Handles 
-    //   removing the jedi from attack/defend when they get 0 or less HP.
+    //   removing the jedi from defend when they get 0 or less HP and ending the
+    //   game if the attacker loses.
     //
     decreaseHitPoints(points) {
         this.hp -= points;
@@ -364,14 +223,13 @@ class Jedi {
             loseDiv.text(this.name + " is defeated.");
             if (this.status === "defender") {
                 this.status = "dead";
-                setDefenderSelectionMode();
-                attackingJedi.victory();   
+                setDefenderSelectionMode();   
             }
             else {
+                alert("Attacker (" + this.name +") looses.  Game over.");
                 attackingJedi = null;
-                this.status = "dead";
-                setAttackerSelectionMode();
-                defendingJedi.victory();  
+                defendingJedi = null;
+                this.status = "dead";                        
             }                   
         }
         else {
@@ -379,55 +237,9 @@ class Jedi {
         }
     }
 
-    //  If the jedi is the attacker..
-    //  This method checks the attack values to see if the jedi has enough strength
-    //  to use the attack, and disables any (buttons) that can't be used.
-    attackButtonCheck() {
-        if (this.status === "attacker") {
-            var attackStr = 0;
-            for (var i=0; i<this.attacks.length; i++) {
-                attackStr = this.attacks[i][0];
-                  if (attackStr > this.strength) {         
-                    $("#btn-attack-"+i).attr("disabled","true");
-                }
-                else {
-                    $("#btn-attack-"+i).removeAttr("disabled");
-                }
-            }
-        }
-    }
-
-    //
-    //  This method increases the jedi's strenght, up to their max, based on the regen rate.
-    //
-    doRegen() {
-        this.strength += this.regen;
-        if (this.strength > this.baseStrength) {
-            this.strength = this.baseStrength;
-        }
-    }
-
-
-    //  
-    //  Method that decreases the jedi's strength and calls the check to see which 
-    //   attacks the jedi has the strength to make.
-    //  
-    decreaseStrength(amount) {
-        this.strength -= amount;
-        if (this.strength < 0) {
-            this.strength = 0;
-        }
-
-        $("#strength" + this.jediId).text(this.strength);
-        this.attackButtonCheck();
-    }
-
-    victory() {
-        // Increase base strength by a random amount. 1 - 25
-        this.baseStrength + Math.floor(25 * Math.random()) + 1;
-
-        this.strength = this.baseStrength;
-        this.hp = this.baseHp;
+    increaseAttackStr() {
+        this.attack += this.baseAttack;
+        $("#attack" + this.jediId).text(this.attack);
     }
 }
 
@@ -441,14 +253,7 @@ $(document).ready(function() {
     jediArray[3] = new Jedi(3, "Luke Skywalker", "./assets/images/luke_skywalker.jpg");
     jediArray[4] = new Jedi(4, "Mace Windu", "./assets/images/mace_windu.png");
     jediArray[5] = new Jedi(5, "Obi Wan Kenobi", "./assets/images/obiwan_kenobi.jpg");
-    
-    //$("#attacker-choices").css("display","inline-flex");
+
+    $("#attacker-choices").css("display","inline-flex");
     setAttackerSelectionMode();
- 
-    // for (var i=0; i<jediArray.length; i++) {
-    //     if (jediArray[i].status === "ready") {
-    //          $("#attacker-choices").append(jediArray[i].card);
-    //     }        
-    // }
-    
-});
+ });

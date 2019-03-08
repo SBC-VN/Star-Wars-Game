@@ -104,3 +104,8 @@ main {
 #remainder-choices {
     display: inline-flex;
 }
+
+#attack-button {
+    display: none;
+    margin-bottom: 1rem;
+}
