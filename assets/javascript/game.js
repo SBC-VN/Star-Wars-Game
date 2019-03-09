@@ -19,18 +19,19 @@ function cardMouseLeave(evt) {
 //
 function attackButtonClick(evt) {
     // Must have an attacker and defender.
-    if (attackingJedi == null || defendIndex == null) {
+    if (attackingJedi == null || defendingJedi == null) {
         return;
     }
 
-    $("#results-text").append(attackingJedi.name + " attacks " + defendingJedi.name + " for " + 
+    $("#attack-results").append(attackingJedi.name + " attacks " + defendingJedi.name + " for " + 
                               attackingJedi.attack + " hp.");
 
     defendingJedi.decreaseHitPoints(attackingJedi.attack);
     if (defendingJedi != null) {
         // The defending jedi must live through the attack to give a counter...
         attackingJedi.decreaseHitPoints(defendingJedi.counterAttack);
-        $("#results-text").append(defendingJedi.name + " counters " + attackingJedi.name + " for " + 
+        $("#attack-results").append($("<br>"));
+        $("#attack-results").append(defendingJedi.name + " counters " + attackingJedi.name + " for " + 
                                   defendingJedi.counterAttack + " hp.");
     }
 
@@ -39,7 +40,7 @@ function attackButtonClick(evt) {
         attackingJedi.increaseAttackStr();        
     }
     
-    $("#results-text").append($("<br>"));    
+    $("#attack-results").append($("<br>"));    
 }
 
 
@@ -79,6 +80,9 @@ function setDefenderSelectionMode() {
     $("#defender-card").empty();
     $("#defender-buttons").empty();
 
+    //$("#results-container").css("display","none");
+    $("#remainder-container").css("display","none");
+    
     $("#defender-container").css("display","block");
     $("#defender-choices").css("display","inline-flex");
     $("#defender-header").text("Select Defender:");
@@ -140,7 +144,8 @@ function jediCardDoubleClick(evt) {
             jediInfo.status = "attacker";
             attackingJedi = jediInfo;
             $("#attack-button").css("display","block");
-            setDefenderSelectionMode();            
+            setDefenderSelectionMode();
+            $("#attack-button").on("click",attackButtonClick);
         }
         else if (selectionMode === "defender") {
             // Selection mode sets this jedi as defender.
@@ -154,8 +159,9 @@ function jediCardDoubleClick(evt) {
             // Move the other jedis to the stand by box.
             populateRemainingSelection();
             // Bring the results container back up.
-            $("#results-container").css("display","inline-block");
+            //$("#results-container").css("display","inline-block");
             selectionMode = "none";
+            $("#attack-results").empty();
         }
     }
 }
@@ -219,10 +225,14 @@ class Jedi {
     decreaseHitPoints(points) {
         this.hp -= points;
         if (this.hp <= 0) {
-            var loseDiv = $("<h3>");
+            var loseDiv = $("<h5>");
             loseDiv.text(this.name + " is defeated.");
+            $("#attack-results").append(loseDiv);
+            
+            //$("#results-text").append($("<p>"));
             if (this.status === "defender") {
                 this.status = "dead";
+                $("#attack-results").append("Select another defender");
                 setDefenderSelectionMode();   
             }
             else {
