@@ -4,6 +4,7 @@ var attackingJedi=null;
 var defendingJedi=null;
 
 var selectionMode="attacker";
+var victoryAudio = new Audio('assets/media/impresiv.wav');
 
 // Next two functions are event handlers - when a Jedi Card gets focus it's background changes.
 function cardMouseEnter(evt) {
@@ -14,6 +15,17 @@ function cardMouseLeave(evt) {
     this.style.backgroundColor = "grey";
 }
 
+//
+//  Play a sound clip and display that the attacker won.
+function attackerWins() {
+    $("#availableDefenders").css("display","hidden");
+    $("#remainder-container").css("display","hidden");
+    $("#defender-container").css("display","hidden");
+    $("#attacker-header").text("Winner:");
+    $("#attack-results").empty();
+    $("#attack-results").append("Attacker wins!");
+    victoryAudio.play();
+}
 //
 //  Click handler when an attack button is clicked.
 //
@@ -53,7 +65,7 @@ function setAttackerSelectionMode() {
     $("#attacker-buttons").empty();
 
     $("#attacker-choices").css("display","inline-flex");
-    $("attacker-header").text("Select Attacker:");
+    $("#attacker-header").text("Select Attacker:");
 
     // Only 'ready' status jedis are eligible for selection.
     for (var i=0; i<jediArray.length; i++) {
@@ -87,10 +99,17 @@ function setDefenderSelectionMode() {
     $("#defender-choices").css("display","inline-flex");
     $("#defender-header").text("Select Defender:");
  
+    var availableDefenders=0;
     for (var i=0; i<jediArray.length; i++) {
         if (jediArray[i].status === "ready") {
              $("#defender-choices").append(jediArray[i].card);
+             availableDefenders++;
         }
+    }
+
+    if (availableDefenders === 0) {
+        // Game over, attacker wins...
+        attackerWins();
     }
 
     // When cards are cleared off the page, they lose click handlers - so gotta put them back on.
@@ -113,7 +132,6 @@ function populateRemainingSelection() {
  
     for (var i=0; i<jediArray.length; i++) {
         if (jediArray[i].status === "ready") {
-            console.log("Append jedi card.");
              $("#remainder-choices").append(jediArray[i].card);
         }
     }
